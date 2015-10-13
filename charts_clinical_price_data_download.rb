@@ -1,5 +1,7 @@
+require 'open-uri'
+require 'nokogiri'
 require 'json'
-require 'FileUtils'
+require 'fileutils'
 require_relative 'download_url_from_file'
 
 unless ARGV.size == 1
@@ -31,6 +33,28 @@ def get_company(name)
   else company_name = first_part.scan(/\w+/).join("")
     end
   return company_name
+end
+
+#get the news headlines from yahoo from stock_symbol
+def get_headlines(symbol)
+  url = "http://finance.yahoo.com/q/h?s=#{symbol}+Headlines"
+  doc = Nokogiri::HTML(open(url))
+  rows = doc.xpath('//table/tr/td/div/ul/li')
+  details = rows.collect do |row|
+    detail = {}
+    [
+      [:link, 'a[@href]'],
+      [:title, 'a/text()'],
+      [:cite, 'cite/text()'],
+      [:date, 'cite/span/text()'],
+    ].each do |name, xpath|
+      detail[name] = row.at_xpath(xpath).to_s.strip
+    end
+    detail
+  end
+    File.open("data/charts_prices_clinical/#{symbol}/#{symbol}_yahoo_headlines.json", "w") do |f|
+      f.write(JSON.pretty_generate(details))
+    end
 end
 
 #build the clinical data download link for each stock symbols from 
@@ -70,6 +94,7 @@ while x < stock_symbols.size
     f.puts(link_y+" "+stock_symbols[x]+"_6m_yahoo_#{tag}.png")
     f.puts(link_c+" "+stock_symbols[x]+"_clinical_#{tag}.zip")
   end
+  get_headlines(stock_symbols[x])
   download("./data/charts_prices_clinical/#{stock_symbols[x]}/links.dat","./data/charts_prices_clinical/#{stock_symbols[x]}")
   x +=1
 end
