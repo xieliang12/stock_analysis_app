@@ -2,15 +2,15 @@ require 'open-uri'
 require 'nokogiri'
 require 'json'
 require 'fileutils'
+require 'date'
 
-unless ARGV.size == 2
-  puts "Usage: ruby finviz.rb <market_cap> <sector>"
-  puts "Example: ruby finviz.rb small healthcare"
+unless ARGV.size == 1
+  puts "Usage: ruby finviz.rb <sector>"
+  puts "Example: ruby finviz.rb healthcare"
 end
 
-$market = ARGV[0]
-$sector = ARGV[1]
-dirname = "/Users/xieliang12/ruby/stock_analysis_app/data/finviz/#{$sector}"
+$sector = ARGV[0]
+dirname = "/Users/xieliang12/ruby/stock_analysis_app/data/finviz"
 
 unless File.directory?(dirname)
   FileUtils.mkdir_p(dirname)
@@ -18,7 +18,7 @@ end
 #download the data from finviz website
 # 151 is custom dataset; 121 is valuation dataset; 131 is ownership dataset
 # 141 is performance dataset
-overview_url = "http://finviz.com/screener.ashx?v=111&f=cap_#{$market}under,sec_#{$sector}"
+overview_url = "http://finviz.com/screener.ashx?v=111&f=sec_#{$sector}"
 
 #get the total number of stocks from the screening
 html = open(overview_url)
@@ -38,7 +38,7 @@ numbers.each do |number|
   $count
 end
 
-custom_url = "http://finviz.com/screener.ashx?v=151&f=cap_#{$market}under,sec_#{$sector}"
+custom_url = "http://finviz.com/screener.ashx?v=151&f=sec_#{$sector}"
 
 #parse the table of each stock information from custom page#
 def get_custom(link, pages)
@@ -64,9 +64,18 @@ def get_custom(link, pages)
     i += 20
   end
 
-  File.open("data/finviz/#{$sector}/#{$market}_#{$sector}_finviz_#{Time.now.strftime("%Y%m%d%H%M")}.json", "w") do |f|
+  File.open("data/finviz/finviz_#{$sector}_#{Time.now.strftime("%Y%m%d%H%M")}.json", "w") do |f|
     f.write(JSON.pretty_generate(records))
   end
 end
 
+old_filename = Dir["data/finviz/finviz_#{$sector}*.json"]
+unless old_filename.empty?
+  if Date.parse(File.basename(old_filename[0], ".json").split("_")[2][0..7]) < Date.today
+    File.delete(old_filename[0])
+  end  
+end
+
 get_custom(custom_url, $count)
+
+
