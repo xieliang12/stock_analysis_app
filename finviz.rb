@@ -69,13 +69,14 @@ def get_custom(link, pages)
   end
 end
 
+#check if the finviz quote file existance, if exist then check the date of the file agains today's date
 old_filename = Dir["data/finviz/finviz_#{$sector}*.json"]
-unless old_filename.empty?
-  if Date.parse(File.basename(old_filename[0], ".json").split("_")[2][0..7]) < Date.today
+if old_filename.empty?
+  get_custom(custom_url, $count)
+else
+  file_date = Date.parse(File.basename(old_filename[0], ".json").split("_")[2][0..7])
+  if file_date < Date.today
     File.delete(old_filename[0])
-  end  
+    get_custom(custom_url, $count)
+  end
 end
-
-get_custom(custom_url, $count)
-
-
