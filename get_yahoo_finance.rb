@@ -18,6 +18,8 @@ fname = Dir["data/finviz/*"].grep(/#{sector}/).join("")
 if File.exist?(fname)
   file = File.read(fname)
   finviz_hash = JSON.parse(file)
+else
+  puts "finviz_#{sector}_*.json in data/finviz folder not found."
 end
 
 i = 0
@@ -49,6 +51,7 @@ def save_to_csv(hash_data, file)
     value.values.each do |v|
       row << v
     end
+    row.map!{ |x| x == "N/A" ? -999 : x}.map!{ |x| x ? x: -999}.map!{ |x| x == "NaN" ? -999 : x}
     CSV.open(file, "a+", {:col_sep => "\t"}) do |csv|
       csv << $header if csv.count.eql? 0
       csv << row
