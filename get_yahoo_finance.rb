@@ -52,6 +52,7 @@ def save_to_csv(hash_data, file)
       row << v
     end
     row.map!{ |x| x == "N/A" ? -999 : x}.map!{ |x| x ? x: -999}.map!{ |x| x == "NaN" ? -999 : x}
+    row.map!{ |x| x =~ /%/ ? (x.gsub(',','').gsub('%','').to_f)/100 : x}
     CSV.open(file, "a+", {:col_sep => "\t"}) do |csv|
       csv << $header if csv.count.eql? 0
       csv << row
@@ -96,14 +97,20 @@ end
 price_file = Dir.glob("data/yahoo/yahoo_#{sector}_daily*.csv").join("")
 new_price_file = "data/yahoo/yahoo_#{sector}_daily_#{current_time}.csv"
 
+def get_all_price(quotes, file_name)
+  quotes.each do |quote|
+    begin
+      get_price(quote, file_name)
+    rescue
+      next
+    end
+  end
+end
+
 #loop each of stock tickers for getting price information
 if !File.exist?(price_file)
-  tickers.each do |symbol|
-    get_price(symbol, new_price_file)
-  end
+  get_all_price(tickers, new_price_file)
 elsif File.exist?(price_file) && not_newest?(price_file)
   File.delete(price_file)
-  tickers.each do |symbol|
-    get_price(symbol, new_price_file)
-  end
+  get_all_price(tickers, new_price_file)
 end
