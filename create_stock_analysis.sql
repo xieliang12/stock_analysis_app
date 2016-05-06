@@ -1,11 +1,11 @@
 -- Database "stock_analysis"
 -- DROP DATABASE "Stock_analysis"
 
-CREATE DATABASE stock_analysis
-  with OWNER = postgres
-       ENCODING = 'UTF8'
-       TABLESPACE = pg_default
-       CONNECTION LIMIT = -1;
+--CREATE DATABASE stock_analysis
+--  with OWNER = xieliang12
+--       ENCODING = 'UTF8'
+--       TABLESPACE = pg_default
+--       CONNECTION LIMIT = -1;
 
 -- SHOW DATESTYLE;
 -- SET DATESTYLE TO POSTGRES, MDY;
@@ -25,13 +25,11 @@ CREATE TABLE IF NOT EXISTS temp_price (
 
 COPY temp_price from '/Users/xieliang12/ruby/stock_analysis_app/data/yahoo/yahoo_healthcare_daily_201605040307.csv' delimiter ',' CSV HEADER;
 
-CREATE TABLE yahoo_healthcare_price as SELECT * FROM temp_price where 1=2;
+CREATE TABLE yahoo_healthcare_daily (like temp_price);
 
-CREATE UNIQUE INDEX symbol_date_uq ON
-  TABLE yahoo_healthcare_price (symbol, date);
+CREATE UNIQUE INDEX symbol_date_uq ON yahoo_healthcare_daily (symbol, date);
 
-INSERT INTO yahoo_healthcare_price as SELECT * FROM temp_price
-  ON CONFLICT (symbol, date) DO NOTHING;
+INSERT INTO yahoo_healthcare_daily SELECT * FROM temp_price ON CONFLICT (symbol, date) DO NOTHING;
 
 DROP TABLE temp_price;
 
@@ -70,14 +68,12 @@ CREATE TABLE IF NOT EXISTS temp_stat (
   company_name text
 );
 
-COPY temp_stat from '/Users/xieliang12/ruby/stock_analysis_app/data/yahoo/yahoo_healthcare_statistics_201605042250.csv' delimiter E'\t' NULL '-999' CSV HEADER;
+COPY temp_stat from '/Users/xieliang12/ruby/stock_analysis_app/data/yahoo/yahoo_health_2016.csv' delimiter E'\t' NULL '-999' CSV HEADER;
 
-CREATE TABLE yahoo_healthcare_statistics as SELECT * FROM temp_stat where 1=2; 
+CREATE TABLE yahoo_healthcare_statistics (like temp_stat); 
 
-CREATE UNIQUE INDEX symbol_uq ON
-  TABLE yahoo_healthcare_statistics (symbol);
+CREATE UNIQUE INDEX symbol_uq ON yahoo_healthcare_statistics (symbol);
 
-INSERT INTO yahoo_healthcare_statistics as SELECT * from temp_stat
-  ON CONFLICT (symbol) DO NOTHING;
+INSERT INTO yahoo_healthcare_statistics SELECT * from temp_stat ON CONFLICT (symbol) DO NOTHING;
 
-DROP TABLE temp_price;
+DROP TABLE temp_stat;
