@@ -1,6 +1,0 @@
-http://ichart.finance.yahoo.com/table.csv?s=ZIOP&a=9&b=12&c=2010&d=9&e=12&f=2015&g=d&ignore=.csv ZIOP_5years_prices_20151013.csv
-http://finviz.com/chart.ashx?t=ZIOP&ty=c&ta=0&p=d&s=l ZIOP_daily_finviz_20151013.png
-http://finviz.com/chart.ashx?t=ZIOP&ty=c&ta=0&p=w&s=l ZIOP_weekly_finviz_20151013.png
-http://finviz.com/chart.ashx?t=ZIOP&ty=c&ta=0&p=m&s=l ZIOP_monthly_finviz_20151013.png
-http://chart.finance.yahoo.com/z?s=ZIOP&t=6m&q=c&l=off&z=l&p=e15,m50,m200,v&a=r14,fs ZIOP_6m_yahoo_20151013.png
-https://www.clinicaltrials.gov/ct2/results/download?down_stds=all&down_typ=fields&down_flds=all&down_fmt=csv&term=ZIOPHARM+Oncology&show_down=Y ZIOP_clinical_20151013.zip

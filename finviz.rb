@@ -4,12 +4,12 @@ require 'json'
 require 'fileutils'
 require 'date'
 
-unless ARGV.size == 1
-  puts "Usage: ruby finviz.rb <sector>"
-  puts "Example: ruby finviz.rb healthcare"
-end
+#unless ARGV.size == 1
+#  puts "Usage: ruby finviz.rb <sector>"
+#  puts "Example: ruby finviz.rb healthcare"
+#end
 
-$sector = ARGV[0]
+$sector = ARGV.last
 dirname = "/Users/xieliang12/ruby/stock_analysis_app/data/finviz"
 
 unless File.directory?(dirname)
