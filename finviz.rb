@@ -10,7 +10,8 @@ require 'date'
 #end
 
 $sector = ARGV.last
-dirname = "/Users/xieliang12/ruby/stock_analysis_app/data/finviz"
+
+dirname = File.join(File.expand_path(File.dirname(__FILE__)), "data/finviz")
 
 unless File.directory?(dirname)
   FileUtils.mkdir_p(dirname)
