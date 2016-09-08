@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS temp_stat (
   short_ratio   DECIMAL(18,4),
   two_hundred_day_moving_average DECIMAL(18,4),
   volume        NUMERIC,
+  previous_close NUMERIC,
   market_cap    NUMERIC,
   price_to_sales_ttm  DECIMAL(18,4),
   price_to_book_mrq   DECIMAL(18,4),

@@ -11,7 +11,7 @@ require 'date'
 #  exit
 #end
 
-$sector = ARGV.last
+$sector = ARGV.lst
 tickers = []
 finviz_hash = []
 
@@ -35,7 +35,7 @@ while i < page_num
 end
 
 #collect the stock symbols screened by sector from saved json data file in data/finviz folder
-stocks = YahooFinance::Stock.new(tickers, [:market_cap, :sector, :industry, :company_name, :p_e_ratio, :peg_ratio, :price_to_sales_ttm, :price_to_book_mrq, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :fifty_day_moving_average, :fifty_two_week_high, :fifty_two_week_low, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :shares_owned, :short_ratio, :two_hundred_day_moving_average, :volume, :roa_ttm, :roe_ttm, :shares_outstanding, :pcnt_held_by_insiders, :pcnt_held_by_institutions, :pcnt_short_of_float, :operating_cash_flow_ttm, :levered_cash_flow_ttm, :next_earnings_announcement_date, :book_value_per_share_mrq])
+stocks = YahooFinance::Stock.new(tickers, [:market_cap, :sector, :industry, :company_name, :p_e_ratio, :peg_ratio, :price_to_sales_ttm, :price_to_book_mrq, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :fifty_day_moving_average, :fifty_two_week_high, :fifty_two_week_low, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :shares_owned, :short_ratio, :two_hundred_day_moving_average, :volume, :previous_close, :roa_ttm, :roe_ttm, :shares_outstanding, :pcnt_held_by_insiders, :pcnt_held_by_institutions, :pcnt_short_of_float, :operating_cash_flow_ttm, :levered_cash_flow_ttm, :next_earnings_announcement_date, :book_value_per_share_mrq])
 results = stocks.fetch
 
 $header = []
@@ -71,7 +71,12 @@ def not_newest?(old_file)
     end
   end
 end
-    
+
+yahoo_data = File.join(File.expand_path(File.dirname(__FILE__)), "data/yahoo")
+unless File.directory?(yahoo_data)
+  FileUtils.mkdir_p(yahoo_data)
+end   
+
 current_time = Time.now.strftime("%Y%m%d%H%M")
 statistics_file = Dir.glob("data/yahoo/yahoo_#{$sector}_statistics*.csv").join("")
 new_stat_file = "data/yahoo/yahoo_#{$sector}_statistics_#{current_time}.csv"
@@ -117,3 +122,4 @@ elsif File.exist?(price_file) && not_newest?(price_file)
   File.delete(price_file)
   get_all_price(tickers, new_price_file)
 end
+
