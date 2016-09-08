@@ -1,5 +1,0 @@
-task :show do
-  sector = ENV['sector']
-  puts sector
-#  task name.to_sym do ; end
-end
