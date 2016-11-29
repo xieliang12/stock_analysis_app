@@ -1,4 +1,5 @@
 require 'yahoo-finance'
+require 'fileutils'
 
 module StockReport
   module Utility
@@ -17,6 +18,20 @@ module StockReport
       else search_name = first_part.scan(/\w+/).join("")
         end
       return search_name
+    end
+
+    def check_file(symbol, file_type)
+      match_files = Dir["./data/#{symbol}/*#{file_type}*"]
+      if match_files.any?
+        created = match_files[0].scan(/\d+/).join('').to_i
+        if $tag.to_i > created
+          match_files.each do |f|
+            FileUtils.rm(f)
+          end
+        else
+          exit
+        end
+      end
     end
   end
 end
