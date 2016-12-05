@@ -2,13 +2,14 @@ require 'open-uri'
 require 'nokogiri'
 require 'json'
 require 'mechanize'
+require_relative 'utility'
 include StockReport::Utility
 
 module StockReport
   module Publication
     def get_paper_information(pmid)
       detail = {}
-      url = "http://www.ncbi.nlm.nih.gov/pubmed/#{pmid}"
+      url = "https://www.ncbi.nlm.nih.gov/pubmed/#{pmid}"
       doc = Nokogiri::HTML(open(url))
       detail["pmid"] = pmid
       detail["title"] = doc.xpath('//div[@class="rprt_all"]/div/h1/text()').to_s
@@ -51,7 +52,7 @@ module StockReport
       pmids.each do |pmid|
         records << get_paper_information(pmid)
       end
-      File.open(File.expand_path("../data/#{ticker}/#{ticker}_publications_#{$tag}.json", __FILE__), "w") do |f|
+      File.open(File.expand_path("../../data/#{ticker}/#{ticker}_publications_#{$tag}.json", __FILE__), "w") do |f|
         f.write(JSON.pretty_generate(records))
       end
     end

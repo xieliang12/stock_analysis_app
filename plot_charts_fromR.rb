@@ -12,7 +12,7 @@ end
 symbol = ARGV[0].chomp
 $tag = Time.now.strftime("%Y%m%d")
 check_file(symbol, "chart")
-check_file(symbol, "insider_transactions")
+check_file(symbol, "insider")
 
 $path = File.expand_path("../data/#{symbol}/", __FILE__)
 $first_url = ""

@@ -4,13 +4,14 @@ require 'json'
 require 'fileutils'
 require 'date'
 
-unless ARGV.size == 1
-  puts "Usage: ruby finviz.rb <sector>"
-  puts "Example: ruby finviz.rb healthcare"
-end
+#unless ARGV.size == 1
+#  puts "Usage: ruby finviz.rb <sector>"
+#  puts "Example: ruby finviz.rb healthcare"
+#end
 
-$sector = ARGV[0]
-dirname = "/Users/xieliang12/ruby/stock_analysis_app/data/finviz"
+$sector = ARGV.last
+
+dirname = File.join(File.expand_path(File.dirname(__FILE__)), "data/finviz")
 
 unless File.directory?(dirname)
   FileUtils.mkdir_p(dirname)

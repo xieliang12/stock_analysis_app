@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION create_db()
 $$
 BEGIN
 
-IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'stock_analysis') THEN
+IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'stockfargo_dev') THEN
   RAISE NOTICE 'Database already exists';
 ELSE
   PERFORM dblink_exec('dbname' || current_database(),
@@ -15,7 +15,7 @@ $$ LANGUAGE plpgsql;
 
 SELECT create_db();
 
-\c stock_analysis
+\c stockfargo_dev
 
 -- create table temp_price if not exist
 CREATE TABLE IF NOT EXISTS temp_price (
@@ -59,7 +59,7 @@ DROP TABLE temp_price;
 CREATE TABLE IF NOT EXISTS temp_stat (
   symbol CHAR(6) PRIMARY key NOT NULL,
   p_e_ratio DECIMAL(18,4),
-  peg_raio  DECIMAL(18,4),
+  peg_ratio  DECIMAL(18,4),
   earnings_per_share DECIMAL(18,4),
   ebitda    DECIMAL(18,4),
   eps_estimate_current_year DECIMAL(18,4),
@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS temp_stat (
   short_ratio   DECIMAL(18,4),
   two_hundred_day_moving_average DECIMAL(18,4),
   volume        NUMERIC,
+  previous_close NUMERIC,
   market_cap    NUMERIC,
   price_to_sales_ttm  DECIMAL(18,4),
   price_to_book_mrq   DECIMAL(18,4),

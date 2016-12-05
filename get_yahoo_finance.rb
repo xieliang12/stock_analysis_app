@@ -5,25 +5,27 @@ require 'csv'
 require 'fileutils'
 require 'date'
 
-if ARGV.size > 1
-  puts "Usage: ruby yahoo_finance.rb <sector>"
-  puts "Example: ruby yahoo_finance.rb healthcare"
-  exit
-end
+#if ARGV.size > 1
+#  puts "Usage: ruby yahoo_finance.rb <sector>"
+#  puts "Example: ruby yahoo_finance.rb healthcare"
+#  exit
+#end
 
-sector = ARGV[0]
-
+$sector = ARGV.lst
 tickers = []
-fname = Dir["data/finviz/*"].grep(/#{sector}/).join("")
+finviz_hash = []
+
+fname = Dir["data/finviz/*.json"].grep(/#{$sector}/).join("")
 if File.exist?(fname)
   file = File.read(fname)
   finviz_hash = JSON.parse(file)
 else
-  puts "finviz_#{sector}_*.json in data/finviz folder not found."
+  puts "#{fname} not found."
 end
 
 i = 0
-while i < finviz_hash.size
+page_num = finviz_hash.size
+while i < page_num
   finviz_hash.each do |x|
     x.each do |element|
       tickers << element['ticker'] if element['ticker'] != ""
@@ -33,7 +35,7 @@ while i < finviz_hash.size
 end
 
 #collect the stock symbols screened by sector from saved json data file in data/finviz folder
-stocks = YahooFinance::Stock.new(tickers, [:market_cap, :sector, :industry, :company_name, :p_e_ratio, :peg_ratio, :price_to_sales_ttm, :price_to_book_mrq, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :fifty_day_moving_average, :fifty_two_week_high, :fifty_two_week_low, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :shares_owned, :short_ratio, :two_hundred_day_moving_average, :volume, :roa_ttm, :roe_ttm, :shares_outstanding, :pcnt_held_by_insiders, :pcnt_held_by_institutions, :pcnt_short_of_float, :operating_cash_flow_ttm, :levered_cash_flow_ttm, :next_earnings_announcement_date, :book_value_per_share_mrq])
+stocks = YahooFinance::Stock.new(tickers, [:market_cap, :sector, :industry, :company_name, :p_e_ratio, :peg_ratio, :price_to_sales_ttm, :price_to_book_mrq, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :fifty_day_moving_average, :fifty_two_week_high, :fifty_two_week_low, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :shares_owned, :short_ratio, :two_hundred_day_moving_average, :volume, :previous_close, :roa_ttm, :roe_ttm, :shares_outstanding, :pcnt_held_by_insiders, :pcnt_held_by_institutions, :pcnt_short_of_float, :operating_cash_flow_ttm, :levered_cash_flow_ttm, :next_earnings_announcement_date, :book_value_per_share_mrq])
 results = stocks.fetch
 
 $header = []
@@ -53,6 +55,7 @@ def save_to_csv(hash_data, file)
     end
     row.map!{ |x| x == "N/A" ? -999 : x}.map!{ |x| x ? x: -999}.map!{ |x| x == "NaN" ? -999 : x}
     row.map!{ |x| x =~ /%/ ? (x.gsub(',','').gsub('%','').to_f)/100 : x}
+    row.map!{ |x| x =~ /k/i ? x.gsub(',','').to_f*1000 : x}
     CSV.open(file, "a+", {:col_sep => "\t"}) do |csv|
       csv << $header if csv.count.eql? 0
       csv << row
@@ -68,10 +71,15 @@ def not_newest?(old_file)
     end
   end
 end
-    
+
+yahoo_data = File.join(File.expand_path(File.dirname(__FILE__)), "data/yahoo")
+unless File.directory?(yahoo_data)
+  FileUtils.mkdir_p(yahoo_data)
+end   
+
 current_time = Time.now.strftime("%Y%m%d%H%M")
-statistics_file = Dir.glob("data/yahoo/yahoo_#{sector}_statistics*.csv").join("")
-new_stat_file = "data/yahoo/yahoo_#{sector}_statistics_#{current_time}.csv"
+statistics_file = Dir.glob("data/yahoo/yahoo_#{$sector}_statistics*.csv").join("")
+new_stat_file = "data/yahoo/yahoo_#{$sector}_statistics_#{current_time}.csv"
 
 if !File.exist?(statistics_file)
   save_to_csv(results, new_stat_file)
@@ -94,8 +102,8 @@ def get_price(symbol, file)
   end
 end
 
-price_file = Dir.glob("data/yahoo/yahoo_#{sector}_daily*.csv").join("")
-new_price_file = "data/yahoo/yahoo_#{sector}_daily_#{current_time}.csv"
+price_file = Dir.glob("data/yahoo/yahoo_#{$sector}_daily*.csv").join("")
+new_price_file = "data/yahoo/yahoo_#{$sector}_daily_#{current_time}.csv"
 
 def get_all_price(quotes, file_name)
   quotes.each do |quote|
@@ -114,3 +122,4 @@ elsif File.exist?(price_file) && not_newest?(price_file)
   File.delete(price_file)
   get_all_price(tickers, new_price_file)
 end
+
