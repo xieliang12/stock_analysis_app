@@ -1,4 +1,5 @@
 require './ticker_report/clinicaltrails'
+require './ticker_report/utility'
 require 'rinruby'
 include StockReport::Clinical 
 
@@ -9,24 +10,24 @@ end
 
 $tag = Time.now.strftime("%Y%m%d")
 symbol = ARGV[0].chomp
+check_file(stock_symbols[i], "clinical")
 get_clinicals(symbol)
 
 $path = File.expand_path("../data/#{symbol}/", __FILE__)
 $filename = Dir.glob("#{$path}/#{symbol}_clinical*.zip")[0]
-$basename = ""
-if !$filename.nil?
-  $basename = File.basename($filename).split(".")[0]
-  unzip_file($path, $filename, $basename)
-else
-  puts "There is an error coccurred during decompression:\n #{e}"
-end
+$basename = File.basename($filename).split(".")[0]
+unzipped = $path+"/"+$basename+".csv"
+$cleaned = $path+"/"+$basename+"_cleaned.csv" 
+$filtered = []
+$header = []
 
-if $basename != ""
-  data_clean($path, $basename)
+unzip_file($filename, unzipped)
+if File.exists?(unzipped)
+  data_clean(unzipped, $cleaned)
 end
 
 R.eval <<EOF
-  if (file.exists("#{$path}/#{$basename}_filtered.csv")) {
+  if (file.exists("#{$cleaned}")) {
     packages <- c("timelineS","stringr", "ggplot2")
     if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
         install.packages(setdiff(packages, rownames(installed.packages())))
@@ -34,7 +35,7 @@ R.eval <<EOF
     library(timelineS)
     library(stringr)
     setwd("/Users/xieliang12/ruby/stock_analysis_app")
-    clinicals <- read.table("#{$path}/#{$basename}_filtered.csv",
+    clinicals <- read.table("#{$cleaned}",
                             sep=",", header=TRUE, stringsAsFactors = FALSE)
 
     clinicals[,c("Start.Date", "Completion.Date","Last.Updated", "Primary.Completion.Date")] <- 
