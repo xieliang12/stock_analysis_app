@@ -52,7 +52,7 @@ module StockReport
           $filtered << items if Date.parse(items[11]) > Date.parse(cut_off)
         end
       end
-      
+
       $header[0].last.gsub!("\"\r\n",'')
       $header.flatten!.map! {|x| x.gsub("\"", '')}
       CSV.open("#{cleaned_file}", 'w', {:col_sep => ","}) do |csv|

@@ -10,7 +10,7 @@ end
 
 $tag = Time.now.strftime("%Y%m%d")
 symbol = ARGV[0].chomp
-check_file(stock_symbols[i], "clinical")
+check_file(symbol, "clinical")
 get_clinicals(symbol)
 
 $path = File.expand_path("../data/#{symbol}/", __FILE__)
