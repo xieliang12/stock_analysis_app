@@ -1,5 +1,5 @@
-require './ticker_report/publications'
-require './ticker_report/utility'
+require_relative './ticker_report/publications'
+require_relative './ticker_report/utility'
 include StockReport::Publication
 
 unless ARGV.size == 1

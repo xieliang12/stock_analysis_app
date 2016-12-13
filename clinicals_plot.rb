@@ -1,6 +1,6 @@
-require './ticker_report/clinicaltrails'
-require './ticker_report/utility'
-require 'rinruby'
+require_relative './ticker_report/clinicaltrails'
+require_relative './ticker_report/utility'
+#require 'rinruby'
 include StockReport::Clinical 
 
 unless ARGV[0]
@@ -26,4 +26,5 @@ if File.exists?(unzipped)
   data_clean(unzipped, $cleaned)
 end
 
-system "Rscript --vanilla ticker_report/clinical_trails_plot.R #{$path} #{$cleaned} #{$basename}"
+system "Rscript --vanilla /Users/xieliang12/ruby/stock_analysis_app/ticker_report/clinical_trails_plot.R #{$path} #{$cleaned} #{$basename}"
+system "rm -rf #{unzipped} #{$filename} #{$cleaned}"

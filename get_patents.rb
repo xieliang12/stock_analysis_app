@@ -1,5 +1,5 @@
-require './ticker_report/patents'
-require './ticker_report/utility'
+require_relative './ticker_report/patents'
+require_relative './ticker_report/utility'
 
 unless ARGV.size == 1
   puts "ruby stock_clinical_chart_link.rb stock_list"

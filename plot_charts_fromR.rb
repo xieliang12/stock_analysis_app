@@ -1,7 +1,7 @@
-require './ticker_report/insider_transactions'
-require './ticker_report/utility'
+require_relative './ticker_report/insider_transactions'
+require_relative './ticker_report/utility'
 require 'csv'
-require 'rinruby'
+#require 'rinruby'
 include StockReport::Insider
 
 unless ARGV[0]
@@ -20,6 +20,7 @@ $next_page = ""
 $all_transactions = []
 
 create_directory(File.expand_path("../data/#{symbol}", __FILE__))
+
 insider_link(symbol)
 page_parse($first_url)
 if $next_page != ""
@@ -27,9 +28,10 @@ if $next_page != ""
   $next_page = ""
 end
 
+insiders_file = File.expand_path("#{$path}/#{symbol}_insider_transactions_#{$tag}.csv", __FILE__)
 if $all_transactions.any?
   headers = $all_transactions[0].keys
-  CSV.open(File.expand_path("#{$path}/#{symbol}_insider_transactions_#{$tag}.csv", __FILE__), "w") do |csv|
+  CSV.open(insiders_file, "w") do |csv|
     csv << headers
     $all_transactions.each do |row|
       csv << row.values
@@ -37,4 +39,5 @@ if $all_transactions.any?
   end
 end
 
-system "Rscript --vanilla ticker_report/price_insider_charts.R #{$path} #{symbol} #{$tag}"
+system "Rscript --vanilla /Users/xieliang12/ruby/stock_analysis_app/ticker_report/price_insider_charts.R #{$path} #{symbol} #{$tag}"
+system "rm #{insiders_file}"
