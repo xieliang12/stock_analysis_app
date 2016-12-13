@@ -26,10 +26,11 @@ module StockReport
         date_arr = date_string.split(/[\s,]/) if !date_string.nil?
         elements = date_arr.reject { |c| c.empty? }
         month = Date::MONTHNAMES.index(elements[0]).to_s
+        date = ""
         if elements.length < 3
-          date = elements[1]+ "-" + month + "-01"
+          date = elements[1].to_s + "-#{month}-01"
         else
-          date = elements[2] + "-" + month + "-" + elements[1]
+          date = elements[2] + "-#{month}-" + elements[1]
         end
         return date
       end
