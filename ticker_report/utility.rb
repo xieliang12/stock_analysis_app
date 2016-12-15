@@ -23,7 +23,7 @@ module StockReport
     def check_file(symbol, file_type)
       match_files = Dir["/Users/xieliang12/ruby/stock_analysis_app/data/#{symbol}/*#{file_type}*"]
       if match_files.any?
-        created = match_files[0].scan(/\d+/).join('').to_i
+        created = match_files[0].scan(/\d{8}/).join('').to_i
         if $tag.to_i > created
           match_files.each do |f|
             FileUtils.rm(f)
