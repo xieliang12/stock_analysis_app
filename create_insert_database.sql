@@ -8,7 +8,7 @@ IF EXISTS (SELECT 1 FROM pg_database WHERE datname = 'stockfargo_dev') THEN
   RAISE NOTICE 'Database already exists';
 ELSE
   PERFORM dblink_exec('dbname' || current_database(),
-    'CREATE DATABASE stock_analysis');
+    'CREATE DATABASE stockfargo_dev');
 END IF;
 END
 $$ LANGUAGE plpgsql;
@@ -18,43 +18,43 @@ SELECT create_db();
 \c stockfargo_dev
 
 -- create table temp_price if not exist
-CREATE TABLE IF NOT EXISTS temp_price (
-  symbol CHAR(6) NOT NULL,
-  date  DATE,
-  open  DECIMAL(18,4),
-  high  DECIMAL(18,4),
-  low   DECIMAL(18,4),
-  close DECIMAL(18,4),
-  volume bigint,
-  adj_close DECIMAL(18,4)
-);
+--CREATE TABLE IF NOT EXISTS temp_price (
+--  symbol CHAR(6) NOT NULL,
+--  date  DATE,
+--  open  DECIMAL(18,4),
+--  high  DECIMAL(18,4),
+--  low   DECIMAL(18,4),
+--  close DECIMAL(18,4),
+--  volume bigint,
+--  adj_close DECIMAL(18,4)
+--);
 
 -- copy daily price data to table temp_price, the daily price file is inputed from command line parameter
-COPY temp_price from :v2 delimiter ',' CSV HEADER;
+--COPY temp_price from :v2 delimiter ',' CSV HEADER;
 
 -- a function for creating daily price table, the table name is dynamic and based on sector name
-CREATE OR REPLACE FUNCTION create_table_daily(sector text)
-  RETURNS VOID as
-$$
+--CREATE OR REPLACE FUNCTION create_table_daily(sector text)
+--  RETURNS VOID as
+--$$
 
-BEGIN
-EXECUTE format('
-  CREATE TABLE IF NOT EXISTS %I (like temp_price)',
-  'yahoo_' || sector || '_daily');
+--BEGIN
+--EXECUTE format('
+--  CREATE TABLE IF NOT EXISTS %I (like temp_price)',
+--  'yahoo_' || sector || '_daily');
 
-EXECUTE format('
-  CREATE UNIQUE INDEX sector ON %I (symbol, date)', 'yahoo_' || sector || '_daily');
+--EXECUTE format('
+--  CREATE UNIQUE INDEX sector ON %I (symbol, date)', 'yahoo_' || sector || '_daily');
 
-EXECUTE format('
-  INSERT INTO %I SELECT * FROM temp_price ON CONFLICT (symbol, date) DO NOTHING', 'yahoo_' || sector || '_daily');
+--EXECUTE format('
+--  INSERT INTO %I SELECT * FROM temp_price ON CONFLICT (symbol, date) DO NOTHING', 'yahoo_' || sector || '_daily');
 
-END
-$$ LANGUAGE plpgsql;
+--END
+--$$ LANGUAGE plpgsql;
 
 -- create a table based on sector name inputed from command input
-SELECT create_table_daily(:v1);
+--SELECT create_table_daily(:v1);
 
-DROP TABLE temp_price;
+--DROP TABLE temp_price;
 
 CREATE TABLE IF NOT EXISTS temp_stat (
   symbol CHAR(6) PRIMARY key NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS temp_stat (
   company_name text
 );
 
-COPY temp_stat from :v3 delimiter E'\t' NULL '-999' CSV HEADER;
+COPY temp_stat from :v2 delimiter E'\t' NULL '-999' CSV HEADER;
 
 CREATE OR REPLACE FUNCTION create_stat_table(sector text)
   RETURNS VOID AS

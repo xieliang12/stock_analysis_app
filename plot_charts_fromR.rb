@@ -10,6 +10,7 @@ unless ARGV[0]
 end
 
 symbol = ARGV[0].chomp
+create_directory(File.expand_path("../data/#{symbol}", __FILE__))
 $tag = Time.now.strftime("%Y%m%d")
 check_file(symbol, "chart")
 check_file(symbol, "insider")
@@ -18,8 +19,6 @@ $path = File.expand_path("../data/#{symbol}/", __FILE__)
 $first_url = ""
 $next_page = ""
 $all_transactions = []
-
-create_directory(File.expand_path("../data/#{symbol}", __FILE__))
 
 insider_link(symbol)
 page_parse($first_url)

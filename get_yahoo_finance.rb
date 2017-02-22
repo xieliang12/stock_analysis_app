@@ -1,6 +1,6 @@
 require 'json'
 require 'open-uri'
-require 'yahoo_finance'
+require 'yahoo-finance'
 require 'csv'
 require 'fileutils'
 require 'date'
@@ -11,7 +11,7 @@ require 'date'
 #  exit
 #end
 
-$sector = ARGV.lst
+$sector = ARGV.last
 tickers = []
 finviz_hash = []
 
@@ -35,24 +35,18 @@ while i < page_num
 end
 
 #collect the stock symbols screened by sector from saved json data file in data/finviz folder
-stocks = YahooFinance::Stock.new(tickers, [:market_cap, :sector, :industry, :company_name, :p_e_ratio, :peg_ratio, :price_to_sales_ttm, :price_to_book_mrq, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :fifty_day_moving_average, :fifty_two_week_high, :fifty_two_week_low, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :shares_owned, :short_ratio, :two_hundred_day_moving_average, :volume, :previous_close, :roa_ttm, :roe_ttm, :shares_outstanding, :pcnt_held_by_insiders, :pcnt_held_by_institutions, :pcnt_short_of_float, :operating_cash_flow_ttm, :levered_cash_flow_ttm, :next_earnings_announcement_date, :book_value_per_share_mrq])
-results = stocks.fetch
+yahoo_client = YahooFinance::Client.new
+results = yahoo_client.quotes(tickers, [:market_capitalization, :average_daily_volume, :book_value, :change, :change_from_200_day_moving_average, :change_from_50_day_moving_average, :change_in_percent, :close, :day_value_change, :days_range, :dividend_pay_date, :dividend_per_share, :dividend_yield, :earnings_per_share, :ebitda, :eps_estimate_current_year, :eps_estimate_next_quarter, :eps_estimate_next_year, :float_shares, :high, :high_52_weeks, :low, :low_52_weeks, :moving_average_200_day, :moving_average_50_day, :name, :one_year_target_price, :open, :pe_ratio, :peg_ratio, :percent_change_from_200_day_moving_average, :percent_change_from_50_day_moving_average, :previous_close, :price_per_book, :price_per_sales, :revenue, :shares_outstanding, :shares_owned, :short_ratio, :stock_exchange, :symbol, :volume], { raw: false })
 
 $header = []
-$header << "symbol"
-key, value = results.first
-value.keys.each do |k|
+results[0].to_h.keys.each do |k|
   $header << k.to_s
 end
 
 #write the stocks statistics data to csv file
 def save_to_csv(hash_data, file)
-  hash_data.each do |key, value|
-    row = []
-    row << key
-    value.values.each do |v|
-      row << v
-    end
+  hash_data.each do |v|
+    row = v.to_h.values
     row.map!{ |x| x == "N/A" ? -999 : x}.map!{ |x| x ? x: -999}.map!{ |x| x == "NaN" ? -999 : x}
     row.map!{ |x| x =~ /%/ ? (x.gsub(',','').gsub('%','').to_f)/100 : x}
     row.map!{ |x| x =~ /k/i ? x.gsub(',','').to_f*1000 : x}
@@ -87,9 +81,10 @@ elsif File.exist?(statistics_file) && not_newest?(statistics_file)
   File.delete(statistics_file)
   save_to_csv(results, new_stat_file)
 end
-
+=begin
+#get the historical price of the last five years of each symbol
 def get_price(symbol, file)
-  url = "http://ichart.finance.yahoo.com/table.csv?s=#{symbol}&a=#{Time.now.month-1}&b=#{Time.now.day}&c=#{Time.now.year-5}&d=#{Time.now.month-1}&e=#{Time.now.day}&f=#{Time.now.year}&g=d&ignore=.csv"
+  url = "http://ichart.finance.yahoo.com/table.csv?s=#{symbol}&a=#{Time.now.month-1}&b=#{Time.now.day}&c=#{Time.now.year-1}&d=#{Time.now.month-1}&e=#{Time.now.day}&f=#{Time.now.year}&g=d&ignore=.csv"
   
   doc = CSV.parse(open(url).read)  
 
@@ -122,4 +117,4 @@ elsif File.exist?(price_file) && not_newest?(price_file)
   File.delete(price_file)
   get_all_price(tickers, new_price_file)
 end
-
+=end
